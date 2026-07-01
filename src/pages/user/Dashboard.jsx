@@ -17,7 +17,7 @@ export default function UserDashboard() {
   const month = getCurrentMonth();
   const year = getCurrentYear();
 
-  const todaySummary = useMemo(() => getTodaysSummary(today, meals, dishes), [today, meals, dishes]);
+  const todaySummary = useMemo(() => getTodaysSummary(today, meals, dishes, members, expenses), [today, meals, dishes, members, expenses]);
   const memberReport = useMemo(() => calculateMemberMonthly(user.id, month, year, meals, dishes, expenses, members), [user.id, month, year, meals, dishes, expenses, members]);
 
   // Today's user meals

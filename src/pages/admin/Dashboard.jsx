@@ -27,7 +27,7 @@ export default function AdminDashboard() {
   const month = getCurrentMonth();
   const year = getCurrentYear();
 
-  const todaySummary = useMemo(() => getTodaysSummary(today, meals, dishes), [today, meals, dishes]);
+  const todaySummary = useMemo(() => getTodaysSummary(today, meals, dishes, members, expenses), [today, meals, dishes, members, expenses]);
   const monthlyReport = useMemo(() => calculateMonthlyExpense(month, year, meals, dishes, expenses, members), [month, year, meals, dishes, expenses, members]);
 
   const activeMembers = members.filter(m => m.active && m.role !== 'admin');

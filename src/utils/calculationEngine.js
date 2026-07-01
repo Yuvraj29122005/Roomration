@@ -210,7 +210,7 @@ export const calculateMemberMonthly = (memberId, month, year, meals, dishes, oth
 /**
  * Get today's meal summary
  */
-export const getTodaysSummary = (today, meals, dishes) => {
+export const getTodaysSummary = (today, meals, dishes, members = [], otherExpenses = []) => {
   const todayMeals = meals.filter(m => m.date === today);
   const lunch = todayMeals.find(m => m.mealType === 'lunch');
   const dinner = todayMeals.find(m => m.mealType === 'dinner');
@@ -223,8 +223,21 @@ export const getTodaysSummary = (today, meals, dishes) => {
     const dish = dishes.find(d => d.id === meal.dishId);
     if (dish) {
       const quantity = meal.quantity || 1;
-      todayExpense += (dish.price * quantity);
+      const costs = calculateMealCost(dish.price * quantity, meal.memberStatuses);
+      costs.forEach(c => {
+        // Only include cost if the member exists and is active (or if we don't have members array to check against)
+        const member = members.length > 0 ? members.find(m => m.id === c.memberId) : { active: true };
+        if (member && member.active) {
+          todayExpense += c.amount;
+        }
+      });
     }
+  });
+
+  // Include today's other expenses in the total
+  const todaysOtherExpenses = otherExpenses.filter(e => e.date === today);
+  todaysOtherExpenses.forEach(e => {
+    todayExpense += e.amount;
   });
 
   return {

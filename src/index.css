@@ -18,8 +18,8 @@
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    @apply bg-gray-50 text-dark-800 dark:bg-dark-950 dark:text-dark-100;
     overscroll-behavior: none;
+    @apply bg-gray-50 text-dark-800 dark:bg-dark-950 dark:text-dark-100;
   }
 
   ::-webkit-scrollbar {

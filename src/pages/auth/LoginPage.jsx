@@ -24,10 +24,7 @@ export default function LoginPage() {
     }
     setLoading(true);
     
-    // Simulate network delay
-    await new Promise(r => setTimeout(r, 500));
-    
-    const result = login(username, password);
+    const result = await login(username, password);
     setLoading(false);
     
     if (result.success) {
@@ -113,27 +110,6 @@ export default function LoginPage() {
               Sign In
             </Button>
           </form>
-
-          {/* Demo credentials */}
-          <div className="mt-6 pt-6 border-t border-gray-100 dark:border-dark-700">
-            <p className="text-xs text-dark-400 text-center mb-3">Demo Credentials</p>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => { setUsername('admin'); setPassword('admin123'); }}
-                className="text-xs bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 px-3 py-2 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors font-medium"
-              >
-                Admin Login
-              </button>
-              <button
-                type="button"
-                onClick={() => { setUsername('rahul'); setPassword('user123'); }}
-                className="text-xs bg-gray-50 dark:bg-dark-700 text-dark-600 dark:text-dark-300 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-600 transition-colors font-medium"
-              >
-                User Login
-              </button>
-            </div>
-          </div>
         </motion.div>
       </motion.div>
     </div>

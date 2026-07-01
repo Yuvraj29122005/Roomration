@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { STORAGE_KEYS } from '../utils/constants';
-import { defaultMembers } from '../utils/dummyData';
+import { loginWithCredentials, updateMemberDb } from '../lib/database';
 
 const AuthContext = createContext(null);
 
@@ -28,38 +28,46 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  const login = (username, password) => {
-    const members = JSON.parse(localStorage.getItem(STORAGE_KEYS.MEMBERS) || '[]');
-    const allUsers = members.length > 0 ? members : defaultMembers;
-    
-    const found = allUsers.find(
-      (m) => m.username === username && m.password === password
-    );
-
-    if (found) {
-      const userData = {
-        id: found.id,
-        name: found.name,
-        username: found.username,
-        role: found.role,
-        mobile: found.mobile,
-      };
-      setUser(userData);
-      return { success: true, user: userData };
+  const login = async (username, password) => {
+    try {
+      const result = await loginWithCredentials(username, password);
+      if (result.success) {
+        setUser(result.user);
+      }
+      return result;
+    } catch (err) {
+      console.error('Login error:', err);
+      return { success: false, error: 'Login failed. Please try again.' };
     }
-    return { success: false, error: 'Invalid username or password' };
   };
 
   const logout = () => {
     setUser(null);
   };
 
-  const updateProfile = (updates) => {
+  const updateProfile = async (updates) => {
     setUser((prev) => ({ ...prev, ...updates }));
+    // Also update in Supabase
+    if (user?.id) {
+      try {
+        await updateMemberDb(user.id, updates);
+      } catch (err) {
+        console.error('Failed to update profile in database:', err);
+      }
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateProfile, isAdmin: user?.role === 'admin', isAuthenticated: !!user }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        updateProfile,
+        isAdmin: user?.role === 'admin',
+        isAuthenticated: !!user,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

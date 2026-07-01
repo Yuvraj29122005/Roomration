@@ -88,6 +88,12 @@ export async function updateMemberDb(id, updates) {
 }
 
 export async function deleteMemberDb(id) {
+  // Manual cascade: Delete related expenses first
+  await supabase.from('expenses').delete().eq('member_id', id);
+  // Manual cascade: Delete related meal statuses
+  await supabase.from('meal_member_status').delete().eq('member_id', id);
+  
+  // Now delete the member
   const { error } = await supabase.from('members').delete().eq('id', id);
   if (error) throw error;
 }

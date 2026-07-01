@@ -50,9 +50,41 @@ export const DataProvider = ({ children }) => {
     }
   }, []);
 
+  const backgroundRefresh = useCallback(async () => {
+    try {
+      const [membersData, dishesData, mealsData, expensesData, settingsData] =
+        await Promise.all([
+          fetchMembers(),
+          fetchDishes(),
+          fetchMeals(),
+          fetchExpenses(),
+          fetchSettings(),
+        ]);
+      setMembers(membersData);
+      setDishes(dishesData);
+      setMeals(mealsData);
+      setExpenses(expensesData);
+      setSettings(settingsData);
+    } catch (err) {
+      console.error('Background refresh failed:', err);
+    }
+  }, []);
+
   useEffect(() => {
     loadAllData();
-  }, [loadAllData]);
+    
+    // Auto-refresh when window regains focus
+    const onFocus = () => backgroundRefresh();
+    window.addEventListener('focus', onFocus);
+    
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(backgroundRefresh, 30000);
+
+    return () => {
+      window.removeEventListener('focus', onFocus);
+      clearInterval(interval);
+    };
+  }, [loadAllData, backgroundRefresh]);
 
   // ─── Settings ───
   const updateSettings = async (updates) => {
@@ -92,13 +124,19 @@ export const DataProvider = ({ children }) => {
   };
 
   const deleteMember = async (id) => {
+    // Optimistically cascade delete locally
     setMembers((prev) => prev.filter((m) => m.id !== id));
+    setExpenses((prev) => prev.filter((e) => e.memberId !== id));
+    setMeals((prev) => prev.map((meal) => ({
+      ...meal,
+      memberStatuses: meal.memberStatuses.filter((ms) => ms.memberId !== id)
+    })));
     try {
       await deleteMemberDb(id);
     } catch (err) {
       console.error('Failed to delete member:', err);
-      const fresh = await fetchMembers();
-      setMembers(fresh);
+      // Fallback reload all data to sync state with database
+      loadAllData();
     }
   };
 

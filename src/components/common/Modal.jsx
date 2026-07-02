@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { HiX } from 'react-icons/hi';
 
-export default function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg' }) {
+export default function Modal({ isOpen, onClose, title, children, maxWidth = 'max-w-lg', headerAction }) {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -26,12 +26,15 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
             {/* Header */}
             <div className="sticky top-0 bg-white dark:bg-dark-800 px-6 py-4 border-b border-gray-100 dark:border-dark-700 flex items-center justify-between rounded-t-3xl sm:rounded-t-2xl z-10">
               <h2 className="text-lg font-semibold text-dark-900 dark:text-white">{title}</h2>
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-xl transition-colors"
-              >
-                <HiX className="w-5 h-5 text-dark-400" />
-              </button>
+              <div className="flex items-center gap-2">
+                {headerAction && headerAction}
+                <button
+                  onClick={onClose}
+                  className="p-2 hover:bg-gray-100 dark:hover:bg-dark-700 rounded-xl transition-colors"
+                >
+                  <HiX className="w-5 h-5 text-dark-400" />
+                </button>
+              </div>
             </div>
 
             {/* Content */}
@@ -44,3 +47,4 @@ export default function Modal({ isOpen, onClose, title, children, maxWidth = 'ma
     </AnimatePresence>
   );
 }
+

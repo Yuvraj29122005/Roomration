@@ -26,12 +26,12 @@ export default function DailyMealEntry() {
 
   // Lunch state
   const [lunchDishId, setLunchDishId] = useState('');
-  const [lunchQuantity, setLunchQuantity] = useState(1);
+  const [lunchQuantity, setLunchQuantity] = useState('');
   const [lunchStatuses, setLunchStatuses] = useState([]);
 
   // Dinner state
   const [dinnerDishId, setDinnerDishId] = useState('');
-  const [dinnerQuantity, setDinnerQuantity] = useState(1);
+  const [dinnerQuantity, setDinnerQuantity] = useState('');
   const [dinnerStatuses, setDinnerStatuses] = useState([]);
 
   const loadDataForDate = (targetDate) => {
@@ -41,18 +41,18 @@ export default function DailyMealEntry() {
 
     if (!lunch) {
       const allLunches = meals.filter(m => m.mealType === 'lunch' && m.date < targetDate).sort((a, b) => b.date.localeCompare(a.date));
-      if (allLunches.length > 0) lunch = { memberStatuses: allLunches[0].memberStatuses, quantity: 1, dishId: '' };
+      if (allLunches.length > 0) lunch = { memberStatuses: allLunches[0].memberStatuses, quantity: '', dishId: '' };
     }
     if (!dinner) {
       const allDinners = meals.filter(m => m.mealType === 'dinner' && m.date < targetDate).sort((a, b) => b.date.localeCompare(a.date));
-      if (allDinners.length > 0) dinner = { memberStatuses: allDinners[0].memberStatuses, quantity: 1, dishId: '' };
+      if (allDinners.length > 0) dinner = { memberStatuses: allDinners[0].memberStatuses, quantity: '', dishId: '' };
     }
 
     setLunchDishId(lunch?.dishId || '');
-    setLunchQuantity(lunch?.quantity || 1);
+    setLunchQuantity(lunch?.quantity || '');
     setLunchStatuses(lunch?.memberStatuses || []);
     setDinnerDishId(dinner?.dishId || '');
-    setDinnerQuantity(dinner?.quantity || 1);
+    setDinnerQuantity(dinner?.quantity || '');
     setDinnerStatuses(dinner?.memberStatuses || []);
   };
 
@@ -96,7 +96,7 @@ export default function DailyMealEntry() {
 
   const saveMeal = (type) => {
     const dishId = type === 'lunch' ? lunchDishId : dinnerDishId;
-    const quantity = type === 'lunch' ? lunchQuantity : dinnerQuantity;
+    const quantity = type === 'lunch' ? (parseInt(lunchQuantity, 10) || 1) : (parseInt(dinnerQuantity, 10) || 1);
     const statuses = type === 'lunch' ? lunchStatuses : dinnerStatuses;
     const existing = type === 'lunch' ? existingLunch : existingDinner;
 
@@ -189,7 +189,22 @@ export default function DailyMealEntry() {
 
             <div>
               <label className="label">Quantity</label>
-              <input type="number" min="0.5" step="0.5" className="input-field" value={lunchQuantity} onChange={e => setLunchQuantity(parseFloat(e.target.value) || 1)} placeholder="Multiplier (e.g. 1)" />
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                className="input-field"
+                value={lunchQuantity}
+                onChange={e => {
+                  const val = e.target.value.replace(/[^0-9]/g, '');
+                  setLunchQuantity(val);
+                }}
+                onBlur={e => {
+                  const val = e.target.value.trim();
+                  if (!val || parseInt(val, 10) < 1) setLunchQuantity('');
+                }}
+                placeholder="Type quantity"
+              />
             </div>
 
             {/* Member Select */}
@@ -278,7 +293,22 @@ export default function DailyMealEntry() {
 
             <div>
               <label className="label">Quantity</label>
-              <input type="number" min="0.5" step="0.5" className="input-field" value={dinnerQuantity} onChange={e => setDinnerQuantity(parseFloat(e.target.value) || 1)} placeholder="Multiplier (e.g. 1)" />
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                className="input-field"
+                value={dinnerQuantity}
+                onChange={e => {
+                  const val = e.target.value.replace(/[^0-9]/g, '');
+                  setDinnerQuantity(val);
+                }}
+                onBlur={e => {
+                  const val = e.target.value.trim();
+                  if (!val || parseInt(val, 10) < 1) setDinnerQuantity('');
+                }}
+                placeholder="Type quantity"
+              />
             </div>
 
             <div>
